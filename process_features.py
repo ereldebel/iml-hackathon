@@ -3,37 +3,55 @@ import numpy as np
 
 Z_SCORE_THRESHOLD = 2.5
 
+global_hours_dict = {}
 
-def process_features_single(df: pd.DataFrame):
-	df['linqmap_subtype'] = np.where(pd.isna(df['linqmap_subtype']),
-	                                 df['linqmap_type'] + "_NO_SUBTYPE",
-	                                 df['linqmap_subtype'])
-	df['light_rail'] = np.where(df[
-		                            'linqmap_reportDescription'] == 'אתר התארגנות - הקו הירוק של הרכבת הקלה',
-	                            1, 0)
-	df['update_date'] = df['update_date'].astype("datetime64[ns]")
-	df['pubDate'] = df['pubDate'].astype("datetime64[ns]")
-	df['time_since_pub'] = df['update_date'] - df['pubDate']
-	df['minutes_since_pub'] = np.where(
-		df['time_since_pub'] < pd.Timedelta(1, "d"),
-		df['time_since_pub'] / np.timedelta64(1, 'm'), 0)
-	df['days_since_pub'] = np.where(
-		df['time_since_pub'] >= pd.Timedelta(1, "d"),
-		df['time_since_pub'] / np.timedelta64(1, 'D'), 0)
 
-	nan_count = [0]
+def get_hours_dict(df: pd.DataFrame):
+    hours_df = pd.DataFrame(pd.to_datetime(df['pubDate']).dt.hour)
+    hours_df = hours_df.value_counts().reset_index()
+    hours_df = hours_df.sort_values(by=[0], ascending=False)
+    hours_dict = dict(zip(hours_df['pubDate'], hours_df[0]))
+    return hours_dict
 
-	def replace_street_name(street):
-		if not pd.isna(street):
-			return street
-		nan_count[0] += 1
-		return "nan" + str(nan_count[0])
 
-	df['linqmap_street'] = df['linqmap_street'].apply(replace_street_name)
+def add_timeslots(df: pd.DataFrame):
+    i = 0
+    while i < 23:
+        df[f"{i}-{i + 2}"] = ((df['hour'] == i) | (df['hour'] == i + 1)).astype(int)
+        i += 2
+    return df
 
-	df = df.drop(
-		columns=['linqmap_reportDescription', 'time_since_pub', 'update_date'])
-	return df
+
+def process_features_single(df: pd.DataFrame, isTest: bool = False):
+    df['linqmap_subtype'] = np.where(pd.isna(df['linqmap_subtype']), df['linqmap_type'] + "_NO_SUBTYPE",
+                                     df['linqmap_subtype'])
+    df['light_rail'] = np.where(df['linqmap_reportDescription'] == 'אתר התארגנות - הקו הירוק של הרכבת הקלה', 1, 0)
+    df['update_date'] = df['update_date'].astype("datetime64[ns]")
+    df['pubDate'] = df['pubDate'].astype("datetime64[ns]")
+    df['time_since_pub'] = df['update_date'] - df['pubDate']
+    df['minutes_since_pub'] = np.where(df['time_since_pub'] < pd.Timedelta(1, "d"),
+                                       df['time_since_pub'] / np.timedelta64(1, 'm'), 0)
+    df['days_since_pub'] = np.where(df['time_since_pub'] >= pd.Timedelta(1, "d"),
+                                    df['time_since_pub'] / np.timedelta64(1, 'D'), 0)
+
+    nan_count = [0]
+
+    def replace_street_name(street):
+        if not pd.isna(street):
+            return street
+        nan_count[0] += 1
+        return "nan" + str(nan_count[0])
+
+    df['linqmap_street'] = df['linqmap_street'].apply(replace_street_name)
+
+    if not isTest:
+        global_hours_dict = get_hours_dict(df)
+    df['hour'] = pd.to_datetime(df['pubDate']).dt.hour
+    df['traffic'] = df['hour'].apply(lambda x: global_hours_dict[x])
+    df = add_timeslots(df)
+
+    df = df.drop(columns=['linqmap_reportDescription', 'time_since_pub', 'update_date', 'hour'])
+    return df
 
 
 def get_2_most_prominent_streets(df: pd.Series):
