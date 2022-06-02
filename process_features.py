@@ -28,9 +28,9 @@ def process_features_single(df: pd.DataFrame):
 
 
 def process_features_combined(df: pd.DataFrame):
+    for i in range(1, 5):
+        df = pd.get_dummies(df, columns=[f"linqmap_type_{i}",
+                                         f"linqmap_subtype_{i}",
+                                         f"linqmap_roadType_{i}"])
+
     return df
-
-
-if __name__ == "__main__":
-    df = pd.read_csv("datasets/original_data_cleaned.csv")
-    process_features_single(df)

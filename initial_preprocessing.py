@@ -5,7 +5,8 @@ from process_features import process_features_single, process_features_combined
 
 
 def clean_data(df):
-    for feature in ["OBJECTID", "linqmap_expectedBeginDate", "linqmap_reportMood",
+    for feature in ["OBJECTID", "linqmap_expectedBeginDate",
+                    "linqmap_reportMood",
                     "linqmap_expectedEndDate", "linqmap_nearby", "nComments"]:
         df = df.drop(feature, 1)
     return df
@@ -40,7 +41,6 @@ def get_fifths(df: pd.DataFrame):
         row_1, row_2, row_3, row_4, row_5 = rows_list[index - 4], \
                                             rows_list[index - 3], rows_list[index - 2], rows_list[index - 1], rows_list[
                                                 index]
-
         dict1 = {key + "_1": value for (key, value) in row_1.items() if key != 'index'}
         dict2 = {key + "_2": value for (key, value) in row_2.items() if key != 'index'}
         dict3 = {key + "_3": value for (key, value) in row_3.items() if key != 'index'}
@@ -61,11 +61,13 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
     df = process_features_single(df)
     df_city = df[df['linqmap_city'] == city_string[0]].reset_index()
     df_fifths = get_fifths(df_city)
-    df_fifths = process_features_combined(df_fifths)
-    train_set, test_set = train_test_split(df_fifths, train_size=2 / 3, shuffle=False)
+    df_fifths_with_combined_features = process_features_combined(df_fifths)
 
-    train_set.to_csv(f"datasets/train_set_{city_string[1]}")
-    test_set.to_csv(f"datasets/test_set_{city_string[1]}")
+    train_set, test_set = train_test_split(df_fifths, train_size=2 / 3,
+                                           shuffle=False)
+
+    train_set.to_csv(f"datasets/train_set_{city_string[1]}.csv")
+    test_set.to_csv(f"datasets/test_set_{city_string[1]}.csv")
     return train_set, test_set
 
 
