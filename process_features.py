@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-Z_SCORE_THRESHOLD = 2.5
+Z_SCORE_THRESHOLD = 4
 
 global_hours_dict = {}
 
@@ -89,20 +89,19 @@ def get_2_most_prominent_streets(df: pd.Series):
 	for row_i in range(1, 5):
 		result[f"{row_i}_in_most_prominent_street"] = 1 \
 			if len(most_prominent_streets) > 0 and \
-			   df[f"linqmap_street_{row_i}"] == most_prominent_street_names[
-				   0] else 0
+			   df[f"linqmap_street_{row_i}"] == most_prominent_street_names[0] else 0
 		result[f"{row_i}_in_second_most_prominent_street"] = 1 \
 			if len(most_prominent_streets) > 1 and \
-			   df[f"linqmap_street_{row_i}"] == most_prominent_street_names[
-				   1] else 0
+			   df[f"linqmap_street_{row_i}"] == most_prominent_street_names[1] else 0
 	return result
 
 
 def combine_time(df):
 	result = pd.DataFrame(columns=[f"duration_{i}" for i in range(2, 5)])
 	for i in range(2, 5):
-		result[f"duration_{i}"] = (df[f"pubDate_{i}"] - df[
-			f"pubDate_{i - 1}"]).total_seconds()
+		result[f"duration_{i}"] = (df[f"pubDate_{i}"] - df[f"pubDate_{i - 1}"])
+		result[f"duration_{i}"] = result[f"duration_{i}"].apply(lambda x: x.seconds)
+	return result
 
 
 def get_location_mean_features(df: pd.Series):
@@ -152,5 +151,8 @@ def process_features_combined(df: pd.DataFrame):
 	new_location_features = locations.apply(get_location_mean_features,
 	                                        axis=1).reindex(df.index)
 	df = pd.concat([df, new_location_features], axis=1)
+	#
+	# new_duration_features = combine_time(df)
+	# df = pd.concat([df, new_duration_features], axis=1)
 
 	return df
