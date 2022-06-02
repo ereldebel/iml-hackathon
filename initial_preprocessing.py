@@ -142,7 +142,7 @@ def write_data_all_cities(df: pd.DataFrame):
 	df_fifths_with_combined_features.drop(
 		columns=[f"linqmap_city_{i}" for i in range(1, 5)], inplace=True)
 
-	train_set, test_set = train_test_split(df_fifths_with_combined_features, train_size=2 / 3, shuffle=False)
+	train_set, test_set = train_test_split(df_fifths_with_combined_features, train_size=2 / 3, shuffle=True)
 	test_set = test_set[test_set['is_tlv'] == 1]
 
 	label_columns = [column for column in train_set.columns if
@@ -166,6 +166,6 @@ def write_data_all_cities(df: pd.DataFrame):
 if __name__ == '__main__':
 	file_path = "Mission 1 - Waze/waze_data.csv"
 	df = pd.read_csv(file_path, parse_dates=['pubDate', 'update_date']).drop_duplicates()
-	# write_data(df, city_string=TLV_STRING, save_csvs=True)
+	write_data(df, city_string=TLV_STRING, save_csvs=True)
 	write_data_all_cities(df)
 
