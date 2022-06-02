@@ -41,10 +41,16 @@ def get_fifths(df: pd.DataFrame):
         row_1, row_2, row_3, row_4, row_5 = rows_list[index - 4], \
                                             rows_list[index - 3], rows_list[index - 2], rows_list[index - 1], rows_list[
                                                 index]
+        # sort 4 rows by publish date
+        rows_by_pub = [row_1, row_2, row_3, row_4]
+        rows_by_pub.sort(key=lambda dict: dict['pubDate'])
+        row_1, row_2, row_3, row_4 = rows_by_pub
+
         dict1 = {key + "_1": value for (key, value) in row_1.items() if key != 'index'}
         dict2 = {key + "_2": value for (key, value) in row_2.items() if key != 'index'}
         dict3 = {key + "_3": value for (key, value) in row_3.items() if key != 'index'}
         dict4 = {key + "_4": value for (key, value) in row_4.items() if key != 'index'}
+
         dict_label = {key + "_label": value for (key, value) in row_5.items() if
                       key in ['x', 'y', 'linqmap_type', 'linqmap_subtype']}
         ndic = {**dict1, **dict2, **dict3, **dict4, **dict_label}
@@ -61,13 +67,14 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
     df = process_features_single(df)
     df_city = df[df['linqmap_city'] == city_string[0]].reset_index()
     df_fifths = get_fifths(df_city)
+
     df_fifths_with_combined_features = process_features_combined(df_fifths)
 
     train_set, test_set = train_test_split(df_fifths, train_size=2 / 3,
                                            shuffle=False)
+    train_set.to_csv(f"datasets/train_set_{city_string[1]}.csv", index=False)
+    test_set.to_csv(f"datasets/test_set_{city_string[1]}.csv", index=False)
 
-    train_set.to_csv(f"datasets/train_set_{city_string[1]}.csv")
-    test_set.to_csv(f"datasets/test_set_{city_string[1]}.csv")
     return train_set, test_set
 
 
