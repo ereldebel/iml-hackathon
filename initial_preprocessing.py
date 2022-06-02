@@ -5,11 +5,10 @@ from process_features import process_features_single, process_features_combined
 
 
 def clean_data(df):
-	for feature in ["OBJECTID", "linqmap_expectedBeginDate",
-	                "linqmap_reportMood",
-	                "linqmap_expectedEndDate", "linqmap_nearby", "nComments"]:
-		df = df.drop(feature, 1)
-	return df
+	return df.drop(
+		["OBJECTID", "linqmap_expectedBeginDate", "linqmap_reportMood",
+		 "linqmap_expectedEndDate", "linqmap_nearby", "nComments"],
+		axis=1, inplace=False)
 
 
 TLV_STRING = ('תל אביב - יפו', 'TLV')
