@@ -28,8 +28,10 @@ TLV_STRING = ('תל אביב - יפו', 'TLV')
 
 
 def get_fifths(df: pd.DataFrame):
-    columns = ['x_label', 'y_label', 'linqmap_type_label', 'linqmap_type_label'] + [column + "_" + str(index) for index in (1, 2, 3, 4) for
-                                                            column in df.columns if column != 'index']
+    columns = ['x_label', 'y_label', 'linqmap_type_label', 'linqmap_subtype_label'] + [column + "_" + str(index) for
+                                                                                       index in (1, 2, 3, 4) for
+                                                                                       column in df.columns if
+                                                                                       column != 'index']
     new_df = pd.DataFrame(columns=columns)
     rows_list = df.to_dict('records')
     for index, row in enumerate(rows_list):
@@ -43,7 +45,7 @@ def get_fifths(df: pd.DataFrame):
         dict3 = {key + "_3": value for (key, value) in row_3.items() if key != 'index'}
         dict4 = {key + "_4": value for (key, value) in row_4.items() if key != 'index'}
         dict_label = {key + "_label": value for (key, value) in row_5.items() if
-                      key in ['x', 'y', 'linqmap_type', 'linqmap_type']}
+                      key in ['x', 'y', 'linqmap_type', 'linqmap_subtype']}
         ndic = {**dict1, **dict2, **dict3, **dict4, **dict_label}
         new_df = new_df.append(ndic, ignore_index=True)
     return new_df
