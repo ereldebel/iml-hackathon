@@ -1,7 +1,24 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-
+from sklearn.preprocessing import LabelEncoder
 from process_features import process_features_single, process_features_combined
+
+type_encoding = ["ACCIDENT", "ROAD_CLOSED", "JAM", "WEATHERHAZARD"]
+subtype_encoding = ['JAM_STAND_STILL_TRAFFIC', 'HAZARD_ON_SHOULDER_CAR_STOPPED', 'JAM_NO_SUBTYPE',
+					'ROAD_CLOSED_EVENT', 'JAM_HEAVY_TRAFFIC', 'JAM_MODERATE_TRAFFIC', 'ROAD_CLOSED_NO_SUBTYPE'
+																					  'HAZARD_ON_ROAD_CONSTRUCTION',
+					'HAZARD_ON_ROAD_OBJECT', 'WEATHERHAZARD_NO_SUBTYPE'
+											 'HAZARD_ON_ROAD_CAR_STOPPED', 'HAZARD_ON_ROAD_TRAFFIC_LIGHT_FAULT',
+					"ACCIDENT_NO_SUBTYPE"
+					'ROAD_CLOSED_CONSTRUCTION', 'ACCIDENT_MINOR', 'ACCIDENT_MAJOR',
+					'HAZARD_ON_ROAD_POT_HOLE', 'HAZARD_ON_SHOULDER',
+					'HAZARD_WEATHER_HEAVY_SNOW', 'HAZARD_ON_SHOULDER_MISSING_SIGN',
+					'HAZARD_ON_ROAD_ROAD_KILL', 'HAZARD_ON_ROAD',
+					'HAZARD_WEATHER_HAIL', 'HAZARD_WEATHER',
+					'HAZARD_ON_SHOULDER_ANIMALS', 'HAZARD_ON_ROAD_ICE',
+					'HAZARD_WEATHER_FOG', 'HAZARD_WEATHER_FLOOD']
+
+le = LabelEncoder()
 
 
 def get_processed_test_set():
@@ -64,17 +81,17 @@ def get_fifths(df: pd.DataFrame):
 		row_1, row_2, row_3, row_4 = rows_by_pub
 
 		dict1 = {key + "_1": value for (key, value) in row_1.items() if
-		         key != 'index'}
+				 key != 'index'}
 		dict2 = {key + "_2": value for (key, value) in row_2.items() if
-		         key != 'index'}
+				 key != 'index'}
 		dict3 = {key + "_3": value for (key, value) in row_3.items() if
-		         key != 'index'}
+				 key != 'index'}
 		dict4 = {key + "_4": value for (key, value) in row_4.items() if
-		         key != 'index'}
+				 key != 'index'}
 
 		dict_label = {key + "_label": value for (key, value) in row_5.items()
-		              if
-		              key in ['x', 'y', 'linqmap_type', 'linqmap_subtype']}
+					  if
+					  key in ['x', 'y', 'linqmap_type', 'linqmap_subtype']}
 		ndic = {**dict1, **dict2, **dict3, **dict4, **dict_label}
 		new_df = new_df.append(ndic, ignore_index=True)
 	return new_df
@@ -96,26 +113,31 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 	df_fifths_with_combined_features.drop(
 		columns=[f"linqmap_city_{i}" for i in range(1, 5)], inplace=True)
 
+	df_fifths_with_combined_features['linqmap_subtype_label'] = le.transform(
+		df_fifths_with_combined_features['linqmap_subtype_label'])
+	df_fifths_with_combined_features['linqmap_type_label'] = le.transform(
+		df_fifths_with_combined_features['linqmap_type_label'])
+
 	train_set, test_set = train_test_split(
 		df_fifths_with_combined_features, train_size=2 / 3,
 		shuffle=False)
 
 	label_columns = [column for column in train_set.columns if
-	                 column.endswith("label")]
+					 column.endswith("label")]
 	train_set_X = train_set[label_columns]
 	train_set_y = train_set.drop(columns=label_columns, inplace=False)
 	test_set_X = test_set[label_columns]
 	test_set_y = test_set.drop(columns=label_columns, inplace=False)
 
 	train_set_X.to_csv(f"datasets/train_set_X_{city_string[1]}.csv",
-	                 index=False)
+					   index=False)
 	test_set_X.to_csv(f"datasets/test_set_X_{city_string[1]}.csv",
-	                index=False)
+					  index=False)
 
 	train_set_y.to_csv(f"datasets/train_set_y_{city_string[1]}.csv",
-	                 index=False)
+					   index=False)
 	test_set_y.to_csv(f"datasets/test_set_y_{city_string[1]}.csv",
-	                index=False)
+					  index=False)
 
 	return train_set, test_set
 
