@@ -28,7 +28,7 @@ def process_features_single(df: pd.DataFrame):
     return df
 
 
-def get_2_most_prominent_streets(df: pd.DataFrame):
+def get_2_most_prominent_streets(df: pd.Series):
     streets = dict()
     for i in range(1, 5):
         if df[f"linqmap_street_{i}"] in streets:
@@ -41,8 +41,7 @@ def get_2_most_prominent_streets(df: pd.DataFrame):
             most_prominent_streets.insert(0, key)
         elif value == 2:
             most_prominent_streets.append(key)
-    result = pd.DataFrame(
-        columns=["most_prominent_street", "second_most_prominent_street"])
+    result = pd.Series()
     result["most_prominent_street"] = most_prominent_streets[0] if len(
         most_prominent_streets) > 0 else 0
     result["second_most_prominent_street"] = most_prominent_streets[1] if len(
@@ -71,11 +70,13 @@ def process_features_combined(df: pd.DataFrame):
     # occurrences are in these streets) and for each occurrence, boolean of
     # which street it is on
     streets = df[[f"linqmap_street_{i}" for i in row_range]]
-    df = pd.concat([df, streets.apply(get_2_most_prominent_streets, axis=1)],
+    new_streets_features = streets.apply(get_2_most_prominent_streets, axis=1).reindex(df.index)
+    df = pd.concat([df, new_streets_features],
                    axis=1)
     df.drop([f"linqmap_street_{i}" for i in row_range], axis=1, inplace=True)
 
     locations = pd.concat([df[[f"x_{i}" for i in row_range]],
                            df[[f"y_{i}" for i in row_range]]], axis=1)
+
 
     return df
