@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 
+Z_SCORE_THRESHOLD = 2.5
+
 global_hours_dict = {}
 
 
@@ -62,9 +64,9 @@ def get_2_most_prominent_streets(df: pd.Series):
 	most_prominent_streets = []
 	for key, value in streets.items():
 		if value >= 3:
-			most_prominent_streets.insert(0, key)
+			most_prominent_streets.insert(0, value)
 		elif value == 2:
-			most_prominent_streets.append(key)
+			most_prominent_streets.append(value)
 	result = pd.Series()
 	result["most_prominent_street"] = most_prominent_streets[0] if len(
 		most_prominent_streets) > 0 else 0
@@ -72,14 +74,14 @@ def get_2_most_prominent_streets(df: pd.Series):
 		most_prominent_streets) > 1 else 0
 
 	for row_i in range(1, 5):
-		result[f"{i}_in_most_prominent_street"] = 1 if len(
-			most_prominent_streets) > 0 and df[f"linqmap_street_{i}"] == \
-													   most_prominent_streets[
-														   0] else 0
-		result[f"{i}_in_second_most_prominent_street"] = 1 if len(
-			most_prominent_streets) > 1 and df[f"linqmap_street_{i}"] == \
-															  most_prominent_streets[
-																  1] else 0
+		result[f"{row_i}_in_most_prominent_street"] = 1 \
+			if len(most_prominent_streets) > 0 and \
+			   df[f"linqmap_street_{row_i}"] == most_prominent_streets[
+				   0] else 0
+		result[f"{row_i}_in_second_most_prominent_street"] = 1 \
+			if len(most_prominent_streets) > 1 and \
+			   df[f"linqmap_street_{row_i}"] == most_prominent_streets[
+				   1] else 0
 	return result
 
 
@@ -88,6 +90,30 @@ def combine_time(df):
 	for i in range(2, 5):
 		result[f"duration_{i}"] = df[f"pubDate_{i}"] - df[f"pubDate_{i - 1}"]
 		result[f"duration_{i}"] = result[f"duration_{i}"].apply(lambda x: x.seconds)
+	return result
+
+def get_location_mean_features(df: pd.Series):
+	coordinates = np.ndarray([4, 2])
+	for i in range(1, 5):
+		coordinates[i - 1] = df[f"x_{i}"], df[f"y_{i}"]
+	mean_location = coordinates.mean(axis=0)
+	dist_from_mean = np.linalg.norm(coordinates - mean_location, axis=1)
+	std = np.std(coordinates, axis=0).mean()
+	z_score = dist_from_mean / (std if std > 0 else 1)
+	result = pd.Series()
+	divisor = 4
+	for i in range(1, 5):
+		result[f"z_score_{i}"] = z_score[i - 1]
+		if z_score[i - 1] > Z_SCORE_THRESHOLD:
+			dist_from_mean[i - 1] = 0
+			result[f"{i}_used_in_mean"] = 0
+			divisor -= 1
+		else:
+			result[f"{i}_used_in_mean"] = 1
+	coordinate_sum = np.sum(coordinates, axis=0) / (
+		divisor if divisor > 0 else 1)
+	result["mean_x"] = coordinate_sum[0]
+	result["mean_y"] = coordinate_sum[1]
 	return result
 
 
@@ -107,8 +133,12 @@ def process_features_combined(df: pd.DataFrame):
 				   axis=1)
 	df.drop([f"linqmap_street_{i}" for i in row_range], axis=1, inplace=True)
 
+	# add z score of x and y and mean coordinates of the closest points
 	locations = pd.concat([df[[f"x_{i}" for i in row_range]],
 						   df[[f"y_{i}" for i in row_range]]], axis=1)
+	new_location_features = locations.apply(get_location_mean_features,
+											axis=1).reindex(df.index)
+	df = pd.concat([df, new_location_features], axis=1)
 
 	new_duration_features = combine_time(df)
 	df = pd.concat([df, new_duration_features], axis=1)
