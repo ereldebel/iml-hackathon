@@ -79,9 +79,14 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 	test_set_X = test_set[label_columns]
 	test_set_y = test_set.drop(columns=label_columns, inplace=False)
 
-	train_set.to_csv(f"datasets/train_set_{city_string[1]}.csv",
+	train_set_X.to_csv(f"datasets/train_set_X_{city_string[1]}.csv",
 	                 index=False)
-	test_set.to_csv(f"datasets/test_set_{city_string[1]}.csv",
+	test_set_X.to_csv(f"datasets/test_set_X_{city_string[1]}.csv",
+	                index=False)
+
+	train_set_y.to_csv(f"datasets/train_set_y_{city_string[1]}.csv",
+	                 index=False)
+	test_set_y.to_csv(f"datasets/test_set_y_{city_string[1]}.csv",
 	                index=False)
 
 	return train_set, test_set
