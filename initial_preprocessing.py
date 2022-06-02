@@ -40,6 +40,7 @@ def get_fifths(df: pd.DataFrame):
         row_1, row_2, row_3, row_4, row_5 = rows_list[index - 4], \
                                             rows_list[index - 3], rows_list[index - 2], rows_list[index - 1], rows_list[
                                                 index]
+
         dict1 = {key + "_1": value for (key, value) in row_1.items() if key != 'index'}
         dict2 = {key + "_2": value for (key, value) in row_2.items() if key != 'index'}
         dict3 = {key + "_3": value for (key, value) in row_3.items() if key != 'index'}
