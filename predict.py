@@ -35,16 +35,18 @@ def train_and_predict(X: pd.DataFrame, y: pd.DataFrame):
 		            name="train score"),
 		 go.Scatter(x=list(k_range), y=values[:, 1], mode="lines+markers",
 		            name="validation score"),
-		 go.Scatter(x=[maximizer], y=[values[maximizer + 1, 1]],
+		 go.Scatter(x=[maximizer + 1], y=[values[maximizer, 1]],
 		            mode="markers",
 		            name="validation score maximizer")
 		 ], layout=go.Layout(
 			title=rf"$\text{{Mean Train and Validation score Using 5-fold"
 			      rf" Cross Validation.}}$"))
 	fig.show()
-	model = ExtraTreesClassifier(max_depth=maximizer + 1, random_state=0)
+	model = UnifiedEstimator(
+		type_model=ExtraTreesClassifier(max_depth=maximizer + 1,
+		                                random_state=0))
 	model.fit(X_train, y_train)
-	type_loss(y_test, model.predict(X_test))
+	model.loss(X_test, y_test)
 
 
 def x_loss(y_true: pd.DataFrame, y_pred: pd.DataFrame
