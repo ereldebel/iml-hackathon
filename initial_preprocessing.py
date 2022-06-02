@@ -15,19 +15,6 @@ def clean_data(df):
 TLV_STRING = ('תל אביב - יפו', 'TLV')
 
 
-# def get_fifths(full_data: pd.DataFrame):
-#     row_i = [0]
-#
-#     def create_fifth(row: pd.DataFrame):
-#         row_i[0] = row_i[0] + 1
-#         if (row_i[0] == 5):
-#
-#
-#         row_i[0] = row_i[0]%5
-#
-#     # full_data.apply()
-
-
 def get_fifths(df: pd.DataFrame):
     columns = ['x_label', 'y_label', 'linqmap_type_label', 'linqmap_subtype_label'] + [column + "_" + str(index) for
                                                                                        index in (1, 2, 3, 4) for

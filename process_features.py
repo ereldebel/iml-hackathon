@@ -88,6 +88,5 @@ def process_features_combined(df: pd.DataFrame):
 	new_duration_features = combine_time(df)
 	df = pd.concat([df, new_duration_features], axis=1)
 
-
 	return df
 
