@@ -124,5 +124,6 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 
 if __name__ == '__main__':
 	file_path = "Mission 1 - Waze/waze_data.csv"
-	df = pd.read_csv(file_path, parse_dates=['pubDate', 'update_date'])
+	df = pd.read_csv(file_path, parse_dates=['pubDate', 'update_date']).drop_duplicates()
 	train_set, test_set = write_data(df, city_string=TLV_STRING)
+
