@@ -20,5 +20,7 @@ def show_hour_histogram():
     fig = px.histogram(fdf, x='pubDate', y=0, nbins=24)
     fig.show()
 
+
 if __name__ == "__main__":
+    show_event_map()
     show_hour_histogram()
