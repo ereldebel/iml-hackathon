@@ -53,7 +53,7 @@ def get_fifths(df: pd.DataFrame):
 
 
 def write_data(df: pd.DataFrame, city_string=TLV_STRING):
-	"""gets RAW df and producues data ready for learning."""
+	"""gets RAW df and produces data ready for learning."""
 	df['update_date'] = pd.to_datetime(df['update_date'], unit='ms')
 	df = df.sort_values(by=['update_date'])
 	df = clean_data(df)
@@ -63,17 +63,26 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 	df_fifths = get_fifths(df_city)
 
 	df_fifths_with_combined_features = process_features_combined(df_fifths)
+	df_fifths_with_combined_features.drop(
+		columns=[f"pubDate_{i}" for i in range(1, 5)], inplace=True)
+	df_fifths_with_combined_features.drop(
+		columns=[f"linqmap_city_{i}" for i in range(1, 5)], inplace=True)
 
-	train_set, test_set = train_test_split(df_fifths, train_size=2 / 3,
-	                                       shuffle=False)
-	train_set_fifths, test_set_fifths = train_test_split(
+	train_set, test_set = train_test_split(
 		df_fifths_with_combined_features, train_size=2 / 3,
 		shuffle=False)
 
-	train_set_fifths.to_csv(f"datasets/train_set_{city_string[1]}.csv",
-	                        index=False)
-	test_set_fifths.to_csv(f"datasets/test_set_{city_string[1]}.csv",
-	                       index=False)
+	label_columns = [column for column in train_set.columns if
+	                 column.endswith("label")]
+	train_set_X = train_set[label_columns]
+	train_set_y = train_set.drop(columns=label_columns, inplace=False)
+	test_set_X = test_set[label_columns]
+	test_set_y = test_set.drop(columns=label_columns, inplace=False)
+
+	train_set.to_csv(f"datasets/train_set_{city_string[1]}.csv",
+	                 index=False)
+	test_set.to_csv(f"datasets/test_set_{city_string[1]}.csv",
+	                index=False)
 
 	return train_set, test_set
 
