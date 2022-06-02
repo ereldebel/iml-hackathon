@@ -1,33 +1,39 @@
 import pandas as pd
 import numpy as np
 
+Z_SCORE_THRESHOLD = 2.5
 
-Z_SCORE_THRESHOLD=2.5
 
 def process_features_single(df: pd.DataFrame):
-    df['linqmap_subtype'] = np.where(pd.isna(df['linqmap_subtype']), df['linqmap_type'] + "_NO_SUBTYPE",
-                                     df['linqmap_subtype'])
-    df['light_rail'] = np.where(df['linqmap_reportDescription'] == 'אתר התארגנות - הקו הירוק של הרכבת הקלה', 1, 0)
-    df['update_date'] = df['update_date'].astype("datetime64[ns]")
-    df['pubDate'] = df['pubDate'].astype("datetime64[ns]")
-    df['time_since_pub'] = df['update_date'] - df['pubDate']
-    df['minutes_since_pub'] = np.where(df['time_since_pub'] < pd.Timedelta(1, "d"),
-                                       df['time_since_pub'] / np.timedelta64(1, 'm'), 0)
-    df['days_since_pub'] = np.where(df['time_since_pub'] >= pd.Timedelta(1, "d"),
-                                    df['time_since_pub'] / np.timedelta64(1, 'D'), 0)
+	df['linqmap_subtype'] = np.where(pd.isna(df['linqmap_subtype']),
+	                                 df['linqmap_type'] + "_NO_SUBTYPE",
+	                                 df['linqmap_subtype'])
+	df['light_rail'] = np.where(df[
+		                            'linqmap_reportDescription'] == 'אתר התארגנות - הקו הירוק של הרכבת הקלה',
+	                            1, 0)
+	df['update_date'] = df['update_date'].astype("datetime64[ns]")
+	df['pubDate'] = df['pubDate'].astype("datetime64[ns]")
+	df['time_since_pub'] = df['update_date'] - df['pubDate']
+	df['minutes_since_pub'] = np.where(
+		df['time_since_pub'] < pd.Timedelta(1, "d"),
+		df['time_since_pub'] / np.timedelta64(1, 'm'), 0)
+	df['days_since_pub'] = np.where(
+		df['time_since_pub'] >= pd.Timedelta(1, "d"),
+		df['time_since_pub'] / np.timedelta64(1, 'D'), 0)
 
-    nan_count = [0]
+	nan_count = [0]
 
-    def replace_street_name(street):
-        if not pd.isna(street):
-            return street
-        nan_count[0] += 1
-        return "nan" + str(nan_count[0])
+	def replace_street_name(street):
+		if not pd.isna(street):
+			return street
+		nan_count[0] += 1
+		return "nan" + str(nan_count[0])
 
-    df['linqmap_street'] = df['linqmap_street'].apply(replace_street_name)
+	df['linqmap_street'] = df['linqmap_street'].apply(replace_street_name)
 
-    df = df.drop(columns=['linqmap_reportDescription', 'time_since_pub', 'update_date'])
-    return df
+	df = df.drop(
+		columns=['linqmap_reportDescription', 'time_since_pub', 'update_date'])
+	return df
 
 
 def get_2_most_prominent_streets(df: pd.Series):
@@ -52,17 +58,20 @@ def get_2_most_prominent_streets(df: pd.Series):
 	for row_i in range(1, 5):
 		result[f"{row_i}_in_most_prominent_street"] = 1 \
 			if len(most_prominent_streets) > 0 and \
-			   df[f"linqmap_street_{row_i}"] == most_prominent_streets[0] else 0
+			   df[f"linqmap_street_{row_i}"] == most_prominent_streets[
+				   0] else 0
 		result[f"{row_i}_in_second_most_prominent_street"] = 1 \
 			if len(most_prominent_streets) > 1 and \
-			   df[f"linqmap_street_{row_i}"] == most_prominent_streets[1] else 0
+			   df[f"linqmap_street_{row_i}"] == most_prominent_streets[
+				   1] else 0
 	return result
 
 
 def combine_time(df):
-    result = pd.DataFrame(columns=[f"duration_{i}" for i in range(2, 5)])
-    for i in range(2, 5):
-        result[f"duration_{i}"] = (df[f"pubDate_{i}"] - df[f"pubDate_{i - 1}"]).total_seconds()
+	result = pd.DataFrame(columns=[f"duration_{i}" for i in range(2, 5)])
+	for i in range(2, 5):
+		result[f"duration_{i}"] = (df[f"pubDate_{i}"] - df[
+			f"pubDate_{i - 1}"]).total_seconds()
 
 
 def get_location_mean_features(df: pd.Series):
@@ -114,4 +123,3 @@ def process_features_combined(df: pd.DataFrame):
 	df = pd.concat([df, new_location_features], axis=1)
 
 	return df
-
