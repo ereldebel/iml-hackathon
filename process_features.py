@@ -1,8 +1,26 @@
 import pandas as pd
 import numpy as np
 
+global_hours_dict = {}
 
-def process_features_single(df: pd.DataFrame):
+
+def get_hours_dict(df: pd.DataFrame):
+    hours_df = pd.DataFrame(pd.to_datetime(df['pubDate']).dt.hour)
+    hours_df = hours_df.value_counts().reset_index()
+    hours_df = hours_df.sort_values(by=[0], ascending=False)
+    hours_dict = dict(zip(hours_df['pubDate'], hours_df[0]))
+    return hours_dict
+
+
+def add_timeslots(df: pd.DataFrame):
+    i = 0
+    while i < 23:
+        df[f"{i}-{i + 2}"] = ((df['hour'] == i) | (df['hour'] == i + 1)).astype(int)
+        i += 2
+    return df
+
+
+def process_features_single(df: pd.DataFrame, isTest: bool = False):
     df['linqmap_subtype'] = np.where(pd.isna(df['linqmap_subtype']), df['linqmap_type'] + "_NO_SUBTYPE",
                                      df['linqmap_subtype'])
     df['light_rail'] = np.where(df['linqmap_reportDescription'] == 'אתר התארגנות - הקו הירוק של הרכבת הקלה', 1, 0)
@@ -24,10 +42,7 @@ def process_features_single(df: pd.DataFrame):
 
     df['linqmap_street'] = df['linqmap_street'].apply(replace_street_name)
 
-    df['sin_magvar'] = np.sin((df['linqmap_magvar'] * np.pi) / 180)
-    df['cos_magvar'] = np.cos((df['linqmap_magvar'] * np.pi) / 180)
-
-    df = df.drop(columns=['linqmap_reportDescription', 'time_since_pub', 'update_date', 'linqmap_magvar'])
+    df = df.drop(columns=['linqmap_reportDescription', 'time_since_pub', 'update_date'])
     return df
 
 
