@@ -14,10 +14,10 @@ from typing import NoReturn
 
 
 class UnifiedEstimator:
-	def __init__(self, type_model=ExtraTreesClassifier,
-				 subtype_model=ExtraTreesClassifier,
-				 x_model = GradientBoostingRegressor,
-				 y_model = GradientBoostingRegressor):
+	def __init__(self, type_model=ExtraTreesClassifier(),
+				 subtype_model=ExtraTreesClassifier(),
+				 x_model = GradientBoostingRegressor(),
+				 y_model = GradientBoostingRegressor()):
 
 		self._type_model = type_model
 		self._subtype_model =subtype_model
