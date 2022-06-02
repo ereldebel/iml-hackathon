@@ -62,6 +62,7 @@ def combine_time(df):
 	result = pd.DataFrame(columns=[f"duration_{i}" for i in range(2, 5)])
 	for i in range(2, 5):
 		result[f"duration_{i}"] = (df[f"pubDate_{i}"] - df[f"pubDate_{i - 1}"]).total_seconds()
+	return result
 
 def process_features_combined(df: pd.DataFrame):
 	row_range = range(1, 5)
@@ -81,6 +82,9 @@ def process_features_combined(df: pd.DataFrame):
 
 	locations = pd.concat([df[[f"x_{i}" for i in row_range]],
 						   df[[f"y_{i}" for i in row_range]]], axis=1)
+
+	new_duration_features = combine_time(df)
+	pd.concat([df, new_duration_features])
 
 	return df
 
