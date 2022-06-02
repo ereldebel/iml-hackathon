@@ -61,8 +61,8 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 
     train_set, test_set = train_test_split(df_fifths, train_size=2 / 3, shuffle=False)
 
-    train_set.to_csv(f"datasets/train_set_{city_string[1]}")
-    test_set.to_csv(f"datasets/test_set_{city_string[1]}")
+    train_set.to_csv(f"datasets/train_set_{city_string[1]}.csv")
+    test_set.to_csv(f"datasets/test_set_{city_string[1]}.csv")
     return train_set, test_set
 
 
