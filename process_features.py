@@ -24,7 +24,10 @@ def process_features_single(df: pd.DataFrame):
 
     df['linqmap_street'] = df['linqmap_street'].apply(replace_street_name)
 
-    df = df.drop(columns=['linqmap_reportDescription', 'time_since_pub', 'update_date'])
+    df['sin_magvar'] = np.sin((df['linqmap_magvar'] * np.pi) / 180)
+    df['cos_magvar'] = np.cos((df['linqmap_magvar'] * np.pi) / 180)
+
+    df = df.drop(columns=['linqmap_reportDescription', 'time_since_pub', 'update_date', 'linqmap_magvar'])
     return df
 
 
