@@ -28,8 +28,10 @@ TLV_STRING = ('תל אביב - יפו', 'TLV')
 
 
 def get_fifths(df: pd.DataFrame):
-    columns = ['x_label', 'y_label', 'linqmap_type_label', 'linqmap_type_label'] + [column + "_" + str(index) for index in (1, 2, 3, 4) for
-                                                            column in df.columns if column != 'index']
+    columns = ['x_label', 'y_label', 'linqmap_type_label', 'linqmap_subtype_label'] + [column + "_" + str(index) for
+                                                                                       index in (1, 2, 3, 4) for
+                                                                                       column in df.columns if
+                                                                                       column != 'index']
     new_df = pd.DataFrame(columns=columns)
     rows_list = df.to_dict('records')
     for index, row in enumerate(rows_list):
@@ -54,8 +56,10 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
     df['update_date'] = pd.to_datetime(df['update_date'], unit='ms')
     df = df.sort_values(by=['update_date'])
     df = clean_data(df)
+    df.to_csv(f"datasets/original_data_cleaned.csv")
     df = process_features_single(df)
     df_city = df[df['linqmap_city'] == city_string[0]].reset_index()
+    df_city = process_features_combined(df_city)
     df_fifths = get_fifths(df_city)
     df_fifths_with_combined_features = process_features_combined(df_fifths)
 
