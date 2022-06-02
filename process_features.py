@@ -64,6 +64,10 @@ def get_2_most_prominent_streets(df: pd.Series):
 			   df[f"linqmap_street_{row_i}"] == most_prominent_streets[1] else 0
 	return result
 
+def combine_time(df):
+	result = pd.DataFrame(columns=[f"duration_{i}" for i in range(2, 5)])
+	for i in range(2, 5):
+		result[f"duration_{i}"] = (df[f"pubDate_{i}"] - df[f"pubDate_{i - 1}"]).total_seconds()
 
 def get_location_mean_features(df: pd.Series):
 	coordinates = np.ndarray([4, 2])
