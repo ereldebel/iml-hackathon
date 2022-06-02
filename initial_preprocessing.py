@@ -59,8 +59,13 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 
     train_set, test_set = train_test_split(df_fifths, train_size=2 / 3,
                                            shuffle=False)
+    train_set_fifths, test_set_fifths = train_test_split(df_fifths_with_combined_features, train_size=2 / 3,
+                                                         shuffle=False)
+
     train_set.to_csv(f"datasets/train_set_{city_string[1]}.csv", index=False)
     test_set.to_csv(f"datasets/test_set_{city_string[1]}.csv", index=False)
+    train_set_fifths.to_csv(f"datasets/train_set_fifths_{city_string[1]}.csv", index=False)
+    test_set_fifths.to_csv(f"datasets/test_set_fifths_{city_string[1]}.csv", index=False)
 
     return train_set, test_set
 
