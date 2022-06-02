@@ -17,22 +17,28 @@ def get_hours_dict(df: pd.DataFrame):
 def add_timeslots(df: pd.DataFrame):
 	i = 0
 	while i < 23:
-		df[f"{i}-{i + 2}"] = ((df['hour'] == i) | (df['hour'] == i + 1)).astype(int)
+		df[f"{i}-{i + 2}"] = (
+					(df['hour'] == i) | (df['hour'] == i + 1)).astype(int)
 		i += 2
 	return df
 
 
 def process_features_single(df: pd.DataFrame, isTest: bool = False):
-	df['linqmap_subtype'] = np.where(pd.isna(df['linqmap_subtype']), df['linqmap_type'] + "_NO_SUBTYPE",
-									 df['linqmap_subtype'])
-	df['light_rail'] = np.where(df['linqmap_reportDescription'] == 'אתר התארגנות - הקו הירוק של הרכבת הקלה', 1, 0)
+	df['linqmap_subtype'] = np.where(pd.isna(df['linqmap_subtype']),
+	                                 df['linqmap_type'] + "_NO_SUBTYPE",
+	                                 df['linqmap_subtype'])
+	df['light_rail'] = np.where(df[
+		                            'linqmap_reportDescription'] == 'אתר התארגנות - הקו הירוק של הרכבת הקלה',
+	                            1, 0)
 	df['update_date'] = df['update_date'].astype("datetime64[ns]")
 	df['pubDate'] = df['pubDate'].astype("datetime64[ns]")
 	df['time_since_pub'] = df['update_date'] - df['pubDate']
-	df['minutes_since_pub'] = np.where(df['time_since_pub'] < pd.Timedelta(1, "d"),
-									   df['time_since_pub'] / np.timedelta64(1, 'm'), 0)
-	df['days_since_pub'] = np.where(df['time_since_pub'] >= pd.Timedelta(1, "d"),
-									df['time_since_pub'] / np.timedelta64(1, 'D'), 0)
+	df['minutes_since_pub'] = np.where(
+		df['time_since_pub'] < pd.Timedelta(1, "d"),
+		df['time_since_pub'] / np.timedelta64(1, 'm'), 0)
+	df['days_since_pub'] = np.where(
+		df['time_since_pub'] >= pd.Timedelta(1, "d"),
+		df['time_since_pub'] / np.timedelta64(1, 'D'), 0)
 
 	nan_count = [0]
 
@@ -52,7 +58,9 @@ def process_features_single(df: pd.DataFrame, isTest: bool = False):
 	df['sin_magvar'] = np.sin((df['linqmap_magvar'] * np.pi) / 180)
 	df['cos_magvar'] = np.cos((df['linqmap_magvar'] * np.pi) / 180)
 
-	df = df.drop(columns=['linqmap_reportDescription', 'time_since_pub', 'update_date', 'hour', 'linqmap_magvar'])
+	df = df.drop(
+		columns=['linqmap_reportDescription', 'time_since_pub', 'update_date',
+		         'hour', 'linqmap_magvar'])
 	return df
 
 
@@ -64,11 +72,14 @@ def get_2_most_prominent_streets(df: pd.Series):
 		else:
 			streets[df[f"linqmap_street_{i}"]] = 1
 	most_prominent_streets = []
+	most_prominent_street_names = []
 	for key, value in streets.items():
 		if value >= 3:
 			most_prominent_streets.insert(0, value)
+			most_prominent_street_names.insert(0, key)
 		elif value == 2:
 			most_prominent_streets.append(value)
+			most_prominent_street_names.append(key)
 	result = pd.Series()
 	result["most_prominent_street"] = most_prominent_streets[0] if len(
 		most_prominent_streets) > 0 else 0
@@ -78,11 +89,11 @@ def get_2_most_prominent_streets(df: pd.Series):
 	for row_i in range(1, 5):
 		result[f"{row_i}_in_most_prominent_street"] = 1 \
 			if len(most_prominent_streets) > 0 and \
-			   df[f"linqmap_street_{row_i}"] == most_prominent_streets[
+			   df[f"linqmap_street_{row_i}"] == most_prominent_street_names[
 				   0] else 0
 		result[f"{row_i}_in_second_most_prominent_street"] = 1 \
 			if len(most_prominent_streets) > 1 and \
-			   df[f"linqmap_street_{row_i}"] == most_prominent_streets[
+			   df[f"linqmap_street_{row_i}"] == most_prominent_street_names[
 				   1] else 0
 	return result
 
@@ -124,22 +135,22 @@ def process_features_combined(df: pd.DataFrame):
 	# make type and subtype one-hot
 	for i in row_range:
 		df = pd.get_dummies(df, columns=[f"linqmap_type_{i}",
-										 f"linqmap_subtype_{i}"])
+		                                 f"linqmap_subtype_{i}"])
 
 	# replace street names with 2 columns of most prominent streets (how many
 	# occurrences are in these streets) and for each occurrence, boolean of
 	# which street it is on
 	streets = df[[f"linqmap_street_{i}" for i in row_range]]
 	new_streets_features = streets.apply(get_2_most_prominent_streets,
-										 axis=1).reindex(df.index)
+	                                     axis=1).reindex(df.index)
 	df = pd.concat([df, new_streets_features], axis=1)
 	df.drop([f"linqmap_street_{i}" for i in row_range], axis=1, inplace=True)
 
 	# add z score of x and y and mean coordinates of the closest points
 	locations = pd.concat([df[[f"x_{i}" for i in row_range]],
-						   df[[f"y_{i}" for i in row_range]]], axis=1)
+	                       df[[f"y_{i}" for i in row_range]]], axis=1)
 	new_location_features = locations.apply(get_location_mean_features,
-											axis=1).reindex(df.index)
+	                                        axis=1).reindex(df.index)
 	df = pd.concat([df, new_location_features], axis=1)
 
 	return df
