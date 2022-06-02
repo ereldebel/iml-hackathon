@@ -18,9 +18,6 @@ subtype_encoding = ['JAM_STAND_STILL_TRAFFIC', 'HAZARD_ON_SHOULDER_CAR_STOPPED',
 					'HAZARD_ON_SHOULDER_ANIMALS', 'HAZARD_ON_ROAD_ICE',
 					'HAZARD_WEATHER_FOG', 'HAZARD_WEATHER_FLOOD']
 
-le = LabelEncoder()
-
-
 def get_processed_test_set():
 	test_path = "Mission 1 - Waze/waze_take_features.csv"
 	df = pd.read_csv(test_path)
@@ -112,11 +109,6 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 		columns=[f"pubDate_{i}" for i in range(1, 5)], inplace=True)
 	df_fifths_with_combined_features.drop(
 		columns=[f"linqmap_city_{i}" for i in range(1, 5)], inplace=True)
-
-	df_fifths_with_combined_features['linqmap_subtype_label'] = le.transform(
-		df_fifths_with_combined_features['linqmap_subtype_label'])
-	df_fifths_with_combined_features['linqmap_type_label'] = le.transform(
-		df_fifths_with_combined_features['linqmap_type_label'])
 
 	train_set, test_set = train_test_split(
 		df_fifths_with_combined_features, train_size=2 / 3,

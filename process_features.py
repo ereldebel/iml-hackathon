@@ -64,11 +64,14 @@ def get_2_most_prominent_streets(df: pd.Series):
 		else:
 			streets[df[f"linqmap_street_{i}"]] = 1
 	most_prominent_streets = []
+	most_prominent_street_names = []
 	for key, value in streets.items():
 		if value >= 3:
 			most_prominent_streets.insert(0, value)
+			most_prominent_street_names.insert(0, key)
 		elif value == 2:
 			most_prominent_streets.append(value)
+			most_prominent_street_names.append(key)
 	result = pd.Series()
 	result["most_prominent_street"] = most_prominent_streets[0] if len(
 		most_prominent_streets) > 0 else 0
@@ -78,11 +81,11 @@ def get_2_most_prominent_streets(df: pd.Series):
 	for row_i in range(1, 5):
 		result[f"{row_i}_in_most_prominent_street"] = 1 \
 			if len(most_prominent_streets) > 0 and \
-			   df[f"linqmap_street_{row_i}"] == most_prominent_streets[
+			   df[f"linqmap_street_{row_i}"] == most_prominent_street_names[
 				   0] else 0
 		result[f"{row_i}_in_second_most_prominent_street"] = 1 \
 			if len(most_prominent_streets) > 1 and \
-			   df[f"linqmap_street_{row_i}"] == most_prominent_streets[
+			   df[f"linqmap_street_{row_i}"] == most_prominent_street_names[
 				   1] else 0
 	return result
 
