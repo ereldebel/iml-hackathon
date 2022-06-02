@@ -33,7 +33,7 @@ class UnifiedEstimator:
 		if not self._fitted:
 			print("not fitted")
 		type_pred = self._type_model.predict(X).reshape(-1, 1)
-		subtype_pred = self._type_model.predict(X).reshape(-1, 1)
+		subtype_pred = self._subtype_model.predict(X).reshape(-1, 1)
 		x_pred = self._x_model.predict(X).reshape(-1, 1)
 		y_pred = self._y_model.predict(X).reshape(-1, 1)
 		return np.column_stack([x_pred, y_pred, type_pred, subtype_pred])
@@ -62,3 +62,25 @@ class UnifiedEstimator:
 		print("x MSE: ", mean_squared_error(y_true_x, y_pred_x))
 		print("y MSE: ", mean_squared_error(y_true_y, y_pred_y))
 		return y_pred
+
+	def x_loss(self, y_pred: pd.DataFrame, y_true: pd.DataFrame) -> np.ndarray:
+		y_pred_x = y_pred[:, 0]
+		y_true_x = y_true["x_label"].values
+		return mean_squared_error(y_true_x, y_pred_x)
+
+	def y_loss(self, y_pred: pd.DataFrame, y_true: pd.DataFrame) -> np.ndarray:
+		y_pred_x = y_pred[:, 1]
+		y_true_x = y_true["y_label"].values
+		return mean_squared_error(y_true_x, y_pred_x)
+
+	def type_loss(self, y_pred: pd.DataFrame,
+	              y_true: pd.DataFrame) -> np.ndarray:
+		y_pred_type = y_pred[:, 2]
+		y_true_type = y_true["linqmap_type_label"].values
+		return f1_score(y_true_type, y_pred_type, average="macro")
+
+	def subtype_loss(self, y_pred: pd.DataFrame,
+	                 y_true: pd.DataFrame) -> np.ndarray:
+		y_pred_subtype = y_pred[:, 3]
+		y_true_subtype = y_true["linqmap_subtype_label"].values
+		return f1_score(y_true_subtype, y_pred_subtype, average="macro")
