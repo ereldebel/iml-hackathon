@@ -56,8 +56,8 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
     df = clean_data(df)
     df = process_features_single(df)
     df_city = df[df['linqmap_city'] == city_string[0]].reset_index()
-    df_city = process_features_combined(df_city)
     df_fifths = get_fifths(df_city)
+    df_fifths_with_combined_features = process_features_combined(df_fifths)
 
     train_set, test_set = train_test_split(df_fifths, train_size=2 / 3, shuffle=False)
 
