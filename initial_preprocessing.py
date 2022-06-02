@@ -102,10 +102,10 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 
 	label_columns = [column for column in train_set.columns if
 	                 column.endswith("label")]
-	train_set_X = train_set[label_columns]
-	train_set_y = train_set.drop(columns=label_columns, inplace=False)
-	test_set_X = test_set[label_columns]
-	test_set_y = test_set.drop(columns=label_columns, inplace=False)
+	train_set_X = train_set.drop(columns=label_columns, inplace=False)
+	train_set_y = train_set[label_columns]
+	test_set_X = test_set.drop(columns=label_columns, inplace=False)
+	test_set_y = test_set[label_columns]
 
 	train_set_X.to_csv(f"datasets/train_set_X_{city_string[1]}.csv",
 	                 index=False)
