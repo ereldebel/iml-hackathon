@@ -14,11 +14,15 @@ from typing import NoReturn
 
 
 class UnifiedEstimator:
-	def __init__(self):
-		self._type_model = ExtraTreesClassifier()
-		self._subtype_model = ExtraTreesClassifier()
-		self._x_model = GradientBoostingRegressor()
-		self._y_model = GradientBoostingRegressor()
+	def __init__(self, type_model=ExtraTreesClassifier,
+				 subtype_model=ExtraTreesClassifier,
+				 x_model = GradientBoostingRegressor,
+				 y_model = GradientBoostingRegressor):
+
+		self._type_model = type_model
+		self._subtype_model =subtype_model
+		self._x_model = x_model
+		self._y_model = y_model
 		self._fitted = False
 
 	def fit(self, X: pd.DataFrame, y: pd.DataFrame):
