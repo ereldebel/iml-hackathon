@@ -11,7 +11,7 @@ def train_and_predict(X: pd.DataFrame, y: pd.DataFrame):
 	model = ExtraTreesClassifier().fit(X_train, y_train)
 	y_pred = model.fit(X_train)
 	print(f1_score(y_train, y_pred))
-	print(confusion_matrix(y_train,y_pred,labels=y_train.unique()))
+	print(confusion_matrix(y_train, y_pred, labels=y_train.unique()))
 
 
 if __name__ == '__main__':

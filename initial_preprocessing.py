@@ -3,20 +3,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from process_features import process_features_single, process_features_combined
 
-type_encoding = ["ACCIDENT", "ROAD_CLOSED", "JAM", "WEATHERHAZARD"]
-subtype_encoding = ['JAM_STAND_STILL_TRAFFIC', 'HAZARD_ON_SHOULDER_CAR_STOPPED', 'JAM_NO_SUBTYPE',
-					'ROAD_CLOSED_EVENT', 'JAM_HEAVY_TRAFFIC', 'JAM_MODERATE_TRAFFIC', 'ROAD_CLOSED_NO_SUBTYPE'
-																					  'HAZARD_ON_ROAD_CONSTRUCTION',
-					'HAZARD_ON_ROAD_OBJECT', 'WEATHERHAZARD_NO_SUBTYPE'
-											 'HAZARD_ON_ROAD_CAR_STOPPED', 'HAZARD_ON_ROAD_TRAFFIC_LIGHT_FAULT',
-					"ACCIDENT_NO_SUBTYPE"
-					'ROAD_CLOSED_CONSTRUCTION', 'ACCIDENT_MINOR', 'ACCIDENT_MAJOR',
-					'HAZARD_ON_ROAD_POT_HOLE', 'HAZARD_ON_SHOULDER',
-					'HAZARD_WEATHER_HEAVY_SNOW', 'HAZARD_ON_SHOULDER_MISSING_SIGN',
-					'HAZARD_ON_ROAD_ROAD_KILL', 'HAZARD_ON_ROAD',
-					'HAZARD_WEATHER_HAIL', 'HAZARD_WEATHER',
-					'HAZARD_ON_SHOULDER_ANIMALS', 'HAZARD_ON_ROAD_ICE',
-					'HAZARD_WEATHER_FOG', 'HAZARD_WEATHER_FLOOD']
 
 def get_processed_test_set():
 	test_path = "Mission 1 - Waze/waze_take_features.csv"
@@ -115,21 +101,21 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 		shuffle=False)
 
 	label_columns = [column for column in train_set.columns if
-	                 column.endswith("label")]
+					 column.endswith("label")]
 	train_set_X = train_set.drop(columns=label_columns, inplace=False)
 	train_set_y = train_set[label_columns]
 	test_set_X = test_set.drop(columns=label_columns, inplace=False)
 	test_set_y = test_set[label_columns]
 
 	train_set_X.to_csv(f"datasets/train_set_X_{city_string[1]}.csv",
-	                 index=False)
+					   index=False)
 	test_set_X.to_csv(f"datasets/test_set_X_{city_string[1]}.csv",
-	                index=False)
+					  index=False)
 
 	train_set_y.to_csv(f"datasets/train_set_y_{city_string[1]}.csv",
-	                 index=False)
+					   index=False)
 	test_set_y.to_csv(f"datasets/test_set_y_{city_string[1]}.csv",
-	                index=False)
+					  index=False)
 
 	return train_set, test_set
 
