@@ -64,17 +64,17 @@ def get_fifths(df: pd.DataFrame):
 		row_1, row_2, row_3, row_4 = rows_by_pub
 
 		dict1 = {key + "_1": value for (key, value) in row_1.items() if
-				 key != 'index'}
+		         key != 'index'}
 		dict2 = {key + "_2": value for (key, value) in row_2.items() if
-				 key != 'index'}
+		         key != 'index'}
 		dict3 = {key + "_3": value for (key, value) in row_3.items() if
-				 key != 'index'}
+		         key != 'index'}
 		dict4 = {key + "_4": value for (key, value) in row_4.items() if
-				 key != 'index'}
+		         key != 'index'}
 
 		dict_label = {key + "_label": value for (key, value) in row_5.items()
-					  if
-					  key in ['x', 'y', 'linqmap_type', 'linqmap_subtype']}
+		              if
+		              key in ['x', 'y', 'linqmap_type', 'linqmap_subtype']}
 		ndic = {**dict1, **dict2, **dict3, **dict4, **dict_label}
 		new_df = new_df.append(ndic, ignore_index=True)
 	return new_df
@@ -96,16 +96,26 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 	df_fifths_with_combined_features.drop(
 		columns=[f"linqmap_city_{i}" for i in range(1, 5)], inplace=True)
 
-	train_set, test_set = train_test_split(df_fifths, train_size=2 / 3,
-										   shuffle=False)
-	train_set_fifths, test_set_fifths = train_test_split(
+	train_set, test_set = train_test_split(
 		df_fifths_with_combined_features, train_size=2 / 3,
 		shuffle=False)
 
-	train_set_fifths.to_csv(f"datasets/train_set_fifths_{city_string[1]}.csv",
-							index=False)
-	test_set_fifths.to_csv(f"datasets/test_set_fifths_{city_string[1]}.csv",
-						   index=False)
+	label_columns = [column for column in train_set.columns if
+	                 column.endswith("label")]
+	train_set_X = train_set[label_columns]
+	train_set_y = train_set.drop(columns=label_columns, inplace=False)
+	test_set_X = test_set[label_columns]
+	test_set_y = test_set.drop(columns=label_columns, inplace=False)
+
+	train_set_X.to_csv(f"datasets/train_set_X_{city_string[1]}.csv",
+	                 index=False)
+	test_set_X.to_csv(f"datasets/test_set_X_{city_string[1]}.csv",
+	                index=False)
+
+	train_set_y.to_csv(f"datasets/train_set_y_{city_string[1]}.csv",
+	                 index=False)
+	test_set_y.to_csv(f"datasets/test_set_y_{city_string[1]}.csv",
+	                index=False)
 
 	return train_set, test_set
 
