@@ -82,7 +82,7 @@ def get_fifths(df: pd.DataFrame):
 	return new_df
 
 
-def write_data(df: pd.DataFrame, city_string=TLV_STRING):
+def write_data(df: pd.DataFrame, city_string=TLV_STRING, save_csvs=True):
 	"""gets RAW df and produces data ready for learning."""
 	df['update_date'] = pd.to_datetime(df['update_date'], unit='ms')
 	df = df.sort_values(by=['update_date'])
@@ -98,9 +98,7 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 	df_fifths_with_combined_features.drop(
 		columns=[f"linqmap_city_{i}" for i in range(1, 5)], inplace=True)
 
-	train_set, test_set = train_test_split(
-		df_fifths_with_combined_features, train_size=2 / 3,
-		shuffle=False)
+	train_set, test_set = train_test_split(df_fifths_with_combined_features, train_size=2 / 3, shuffle=False)
 
 	label_columns = [column for column in train_set.columns if
 	                 column.endswith("label")]
@@ -119,11 +117,55 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 	test_set_y.to_csv(f"datasets/test_set_y_{city_string[1]}.csv",
 	                  index=False)
 
-	return train_set, test_set
+
+def write_data_all_cities(df: pd.DataFrame):
+	"""gets RAW df and produces data ready for learning."""
+	df['update_date'] = pd.to_datetime(df['update_date'], unit='ms')
+	df = df.sort_values(by=['update_date'])
+	df = clean_data(df)
+	df.to_csv(f"datasets/original_data_cleaned.csv")
+	df = process_features_single(df)
+
+	df_fifths = pd.DataFrame()
+	cities = df['linqmap_city'].unique()
+	for city in cities:
+		df_city = df[df['linqmap_city'] == city].reset_index()
+		if df_city.shape[0] < 100:
+			continue
+		df_fifth_single_city = get_fifths(df_city)
+		df_fifth_single_city['is_tlv'] = 1 if (city == 'תל אביב - יפו') else 0
+		df_fifths = df_fifths.append(df_fifth_single_city)
+
+	df_fifths_with_combined_features = process_features_combined(df_fifths)
+	df_fifths_with_combined_features.drop(
+		columns=[f"pubDate_{i}" for i in range(1, 5)], inplace=True)
+	df_fifths_with_combined_features.drop(
+		columns=[f"linqmap_city_{i}" for i in range(1, 5)], inplace=True)
+
+	train_set, test_set = train_test_split(df_fifths_with_combined_features, train_size=2 / 3, shuffle=False)
+	test_set = test_set[test_set['is_tlv'] == 1]
+
+	label_columns = [column for column in train_set.columns if
+					 column.endswith("label")]
+	train_set_X = train_set.drop(columns=label_columns, inplace=False)
+	train_set_y = train_set[label_columns]
+	test_set_X = test_set.drop(columns=label_columns, inplace=False)
+	test_set_y = test_set[label_columns]
+
+	train_set_X.to_csv(f"datasets/train_set_X_all_cities.csv",
+					   index=False)
+	test_set_X.to_csv(f"datasets/test_set_X_all_cities.csv",
+					  index=False)
+
+	train_set_y.to_csv(f"datasets/train_set_y_all_cities.csv",
+					   index=False)
+	test_set_y.to_csv(f"datasets/test_set_y_all_cities.csv",
+					  index=False)
 
 
 if __name__ == '__main__':
 	file_path = "Mission 1 - Waze/waze_data.csv"
 	df = pd.read_csv(file_path, parse_dates=['pubDate', 'update_date']).drop_duplicates()
-	train_set, test_set = write_data(df, city_string=TLV_STRING)
+	# write_data(df, city_string=TLV_STRING, save_csvs=True)
+	write_data_all_cities(df)
 
