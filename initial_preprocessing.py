@@ -54,11 +54,11 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
     df['update_date'] = pd.to_datetime(df['update_date'], unit='ms')
     df = df.sort_values(by=['update_date'])
     df = clean_data(df)
+    df.to_csv(f"datasets/original_data_cleaned.csv")
     df = process_features_single(df)
     df_city = df[df['linqmap_city'] == city_string[0]].reset_index()
-    df_city = process_features_combined(df_city)
     df_fifths = get_fifths(df_city)
-
+    df_fifths = process_features_combined(df_fifths)
     train_set, test_set = train_test_split(df_fifths, train_size=2 / 3, shuffle=False)
 
     train_set.to_csv(f"datasets/train_set_{city_string[1]}")
