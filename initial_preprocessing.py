@@ -24,7 +24,12 @@ def get_processed_test_set():
 				 key != 'index'}
 		ndic = {**dict1, **dict2, **dict3, **dict4}
 		new_df = new_df.append(ndic, ignore_index=True)
-	return process_features_combined(new_df)
+	df_combined = process_features_combined(new_df)
+	df_combined.drop(
+		columns=[f"pubDate_{i}" for i in range(1, 5)], inplace=True)
+	df_combined.drop(
+		columns=[f"linqmap_city_{i}" for i in range(1, 5)], inplace=True)
+	return df_combined
 
 
 def clean_data(df):
@@ -76,7 +81,7 @@ def get_fifths(df: pd.DataFrame):
 
 
 def write_data(df: pd.DataFrame, city_string=TLV_STRING):
-	"""gets RAW df and producues data ready for learning."""
+	"""gets RAW df and produces data ready for learning."""
 	df['update_date'] = pd.to_datetime(df['update_date'], unit='ms')
 	df = df.sort_values(by=['update_date'])
 	df = clean_data(df)
@@ -86,6 +91,10 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 	df_fifths = get_fifths(df_city)
 
 	df_fifths_with_combined_features = process_features_combined(df_fifths)
+	df_fifths_with_combined_features.drop(
+		columns=[f"pubDate_{i}" for i in range(1, 5)], inplace=True)
+	df_fifths_with_combined_features.drop(
+		columns=[f"linqmap_city_{i}" for i in range(1, 5)], inplace=True)
 
 	train_set, test_set = train_test_split(df_fifths, train_size=2 / 3,
 										   shuffle=False)
@@ -93,8 +102,6 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 		df_fifths_with_combined_features, train_size=2 / 3,
 		shuffle=False)
 
-	train_set.to_csv(f"datasets/train_set_{city_string[1]}.csv", index=False)
-	test_set.to_csv(f"datasets/test_set_{city_string[1]}.csv", index=False)
 	train_set_fifths.to_csv(f"datasets/train_set_fifths_{city_string[1]}.csv",
 							index=False)
 	test_set_fifths.to_csv(f"datasets/test_set_fifths_{city_string[1]}.csv",
@@ -104,6 +111,8 @@ def write_data(df: pd.DataFrame, city_string=TLV_STRING):
 
 
 if __name__ == '__main__':
-	file_path = "Mission 1 - Waze/waze_data.csv
+	file_path = "Mission 1 - Waze/waze_data.csv"
 	df = pd.read_csv(file_path, parse_dates=['pubDate', 'update_date'])
 	train_set, test_set = write_data(df, city_string=TLV_STRING)
+
+	pass
