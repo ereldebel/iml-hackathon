@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import datetime
 
 
 def process_features_single(df: pd.DataFrame):
@@ -61,7 +62,8 @@ def get_2_most_prominent_streets(df: pd.Series):
 def combine_time(df):
 	result = pd.DataFrame(columns=[f"duration_{i}" for i in range(2, 5)])
 	for i in range(2, 5):
-		result[f"duration_{i}"] = (df[f"pubDate_{i}"] - df[f"pubDate_{i - 1}"]).total_seconds()
+		result[f"duration_{i}"] = df[f"pubDate_{i}"] - df[f"pubDate_{i - 1}"]
+		result[f"duration_{i}"] = result[f"duration_{i}"].apply(lambda x: x.seconds)
 	return result
 
 def process_features_combined(df: pd.DataFrame):
@@ -84,7 +86,8 @@ def process_features_combined(df: pd.DataFrame):
 						   df[[f"y_{i}" for i in row_range]]], axis=1)
 
 	new_duration_features = combine_time(df)
-	pd.concat([df, new_duration_features])
+	df = pd.concat([df, new_duration_features], axis=1)
+
 
 	return df
 
