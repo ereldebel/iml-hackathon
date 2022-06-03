@@ -9,7 +9,7 @@ def is_holiday(date: pd.datetime):
 
 def predict_csv_table(df: pd.DataFrame, date_str: str):
 	"""predict csv table in required format, on given date."""
-	FACTOR_MORNING, FACTOR_AFTERNOON, FACTOR_EVENING = 0.2, 1, 1
+	FACTOR_MORNING, FACTOR_AFTERNOON, FACTOR_EVENING = 0.4, 0.65, 0.6
 	aggregated_df = pd.DataFrame()
 	date = pd.to_datetime(date_str, format='%Y-%m-%d')
 	df = df.drop(columns=['hour'])
