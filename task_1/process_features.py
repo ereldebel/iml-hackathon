@@ -9,6 +9,11 @@ class ProcessFeatures:
 		self._global_hours_dict = {}
 
 	def get_hours_dict(self, df: pd.DataFrame):
+		"""
+		create dictionary from hour to traffic jam in the hour.
+		:param df:
+		:return:
+		"""
 		hours_df = pd.DataFrame(pd.to_datetime(df['pubDate']).dt.hour)
 		hours_df = hours_df.value_counts().reset_index()
 		hours_df = hours_df.sort_values(by=[0], ascending=False)
@@ -16,6 +21,11 @@ class ProcessFeatures:
 		return hours_dict
 
 	def add_timeslots(self, df: pd.DataFrame):
+		"""
+		divide the day to 12 equals time slots.
+		:param df:
+		:return: update df
+		"""
 		i = 0
 		while i < 23:
 			df[f"{i}-{i + 2}"] = (
@@ -24,6 +34,12 @@ class ProcessFeatures:
 		return df
 
 	def process_features_single(self, df: pd.DataFrame, isTest: bool = False):
+		"""
+		preprocess single event
+		:param df:
+		:param isTest: is the df is test set
+		:return: update df
+		"""
 		df['linqmap_subtype'] = np.where(pd.isna(df['linqmap_subtype']),
 		                                 df['linqmap_type'] + "_NO_SUBTYPE",
 		                                 df['linqmap_subtype'])
@@ -43,6 +59,11 @@ class ProcessFeatures:
 		nan_count = [0]
 
 		def replace_street_name(street):
+			"""
+			make nan street unique
+			:param street:
+			:return:
+			"""
 			if not pd.isna(street):
 				return street
 			nan_count[0] += 1
@@ -65,6 +86,11 @@ class ProcessFeatures:
 		return df
 
 	def get_2_most_prominent_streets(self, df: pd.Series):
+		"""
+		find 2 most frequent street in one simple (4 events)
+		:param df:
+		:return:
+		"""
 		streets = dict()
 		for i in range(1, 5):
 			if df[f"linqmap_street_{i}"] in streets:
@@ -99,6 +125,11 @@ class ProcessFeatures:
 		return result
 
 	def combine_time(self, df):
+		"""
+		find duration between events
+		:param df:
+		:return:
+		"""
 		result = pd.DataFrame(columns=[f"duration_{i}" for i in range(2, 5)])
 		for i in range(2, 5):
 			result[f"duration_{i}"] = (
@@ -108,6 +139,11 @@ class ProcessFeatures:
 		return result
 
 	def get_location_mean_features(self, df: pd.Series):
+		"""
+		get the simple geographic center and drop a far distance event
+		:param df:
+		:return:
+		"""
 		coordinates = np.ndarray([4, 2])
 		for i in range(1, 5):
 			coordinates[i - 1] = df[f"x_{i}"], df[f"y_{i}"]
@@ -132,6 +168,11 @@ class ProcessFeatures:
 		return result
 
 	def process_features_combined(self, df: pd.DataFrame):
+		"""
+		preprocess features that relevant for all four events together
+		:param df:
+		:return:
+		"""
 		row_range = range(1, 5)
 		# make type and subtype one-hot
 		for i in row_range:
@@ -155,8 +196,5 @@ class ProcessFeatures:
 			self.get_location_mean_features,
 			axis=1).reindex(df.index)
 		df = pd.concat([df, new_location_features], axis=1)
-		#
-		# new_duration_features = combine_time(df)
-		# df = pd.concat([df, new_duration_features], axis=1)
 
 		return df

@@ -151,14 +151,12 @@ def match_columns(df_columns: pd.DataFrame, df_other: pd.DataFrame):
 	return df_other
 
 
-def get_data(export: bool = False):
+def get_data(data_set_path, test_set_path, export: bool = False):
 	processor = ProcessFeatures()
-	file_path = "../Mission 1 - Waze/waze_data.csv"
-	full_data = pd.read_csv(file_path, parse_dates=['pubDate',
+	full_data = pd.read_csv(data_set_path, parse_dates=['pubDate',
 	                                                'update_date']).drop_duplicates()
 	train_X, train_y = get_train_data_all_cities(full_data, processor, export)
-	file_path = "../Mission 1 - Waze/waze_take_features.csv"
-	full_test_data = pd.read_csv(file_path,
+	full_test_data = pd.read_csv(test_set_path,
 	                             parse_dates=['pubDate', 'update_date'])
 	test_X = get_test_data_all_cities(full_test_data, processor, export)
 	train_X = match_columns(test_X, train_X)
