@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-def is_holiday(date: pd.datetime):
+def is_holiday(date):
 	holiday_date = '2022-06-05'
 	return date == pd.to_datetime(holiday_date, format='%Y-%m-%d')
 
@@ -30,9 +30,8 @@ def add_timeslots(df: pd.DataFrame):
 	return df
 
 
-def load_data():
+def load_data(data_path):
 	"""load original data and process its event distributions."""
-	data_path = "datasets/original_data.csv"
 	df = pd.read_csv(data_path)
 	df = df.drop_duplicates()
 	df['update_date'] = pd.to_datetime(df['update_date'], unit='ms')
@@ -47,12 +46,12 @@ def load_data():
 	return df
 
 
-def main(dates):
-	df = load_data()
+def task_2_main(data_path, dates):
+	df = load_data(data_path)
 	for date in dates:
 		prediction = predict_csv_table(df, date)
 		prediction.to_csv("prediction" + date + ".csv", index=False, header=False)
 
 
 if __name__ == "__main__":
-	main(["2022-06-05", "2022-06-07", "2022-06-09"])
+	task_2_main(["2022-06-05", "2022-06-07", "2022-06-09"], )
