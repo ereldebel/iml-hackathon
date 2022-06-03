@@ -1,7 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
-from process_features import process_features_single, process_features_combined
+from task_1.process_features import process_features_single, process_features_combined
 
 
 def get_processed_test_set():
