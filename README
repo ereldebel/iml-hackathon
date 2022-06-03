@@ -1,0 +1,18 @@
+files:
+
+USERS
+README
+project.pdf                     explaining our solution :)
+task_1
+    predictions.csv             task1 predictions
+    prediction2022-06-05.csv    task2 predictions for 2022-06-05
+    prediction2022-06-07.csv    task2 predictions for 2022-06-07
+    prediction2022-06-09.csv    task2 predictions for 2022-06-09
+    requirements.txt            virtual env libraries requirements
+    main.py                     the main file that predicts everything
+    task_1_.py                  predicts the first task
+    task_2.py                   predicts the second task
+    preprocess.py               pre-processes the data
+    process_features.py         process the features of given data
+    unified_estimator.py        fit and predict all estimators
+    __init__.py                 init file

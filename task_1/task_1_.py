@@ -9,7 +9,7 @@ def task_1_main(data_set_path, test_set_path):
 	model = UnifiedEstimator().fit(train_X, train_y)
 	predictions = pd.DataFrame(model.predict(test_X))
 	predictions.columns = ["linqmap_type", "linqmap_subtype", "x", "y"]
-	predictions.to_csv(f"predictions.csv", index=False)
+	predictions.to_csv(f"task_1/predictions.csv", index=False)
 
 
 if __name__ == '__main__':

@@ -50,7 +50,7 @@ def task_2_main(data_path, dates):
 	df = load_data(data_path)
 	for date in dates:
 		prediction = predict_csv_table(df, date)
-		prediction.to_csv("prediction" + date + ".csv", index=False, header=False)
+		prediction.to_csv("task1/prediction" + date + ".csv", index=False, header=False)
 
 
 if __name__ == "__main__":

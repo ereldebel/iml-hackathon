@@ -14,8 +14,7 @@ def main(data_set_path: str, train_set_1: str, date_list: List[Any]):
 	except Exception:
 		pass
 
-
 if __name__ == '__main__':
-	main("../Mission 1 - Waze/waze_data.csv",
+	main("./Mission 1 - Waze/waze_data.csv",
 	     "./Mission 1 - Waze/waze_take_features.csv",
 	     ["2022-06-05", "2022-06-07", "2022-06-09"])
