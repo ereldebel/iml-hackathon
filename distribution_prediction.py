@@ -47,9 +47,12 @@ def load_data():
 	return df
 
 
-if __name__ == "__main__":
+def main(dates):
 	df = load_data()
-	dates = ["2022-06-05", "2022-06-07", "2022-06-09"]
 	for date in dates:
 		prediction = predict_csv_table(df, date)
-		print(prediction)
+		prediction.to_csv("prediction" + date + ".csv", index=False, header=False)
+
+
+if __name__ == "__main__":
+	main(["2022-06-05", "2022-06-07", "2022-06-09"])
